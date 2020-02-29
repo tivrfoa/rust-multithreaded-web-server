@@ -2,9 +2,14 @@ use std::fs;
 use std::io::prelude::*;
 use std::net::TcpStream;
 use std::net::TcpListener;
+use std::thread;
+use std::time::Duration;
 
 const STATUS_LINE_200: &str = "HTTP/1.1 200 OK\r\n\r\n";
 const STATUS_LINE_404: &str = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+
+const ROUTE_GET: &[u8] = b"GET / HTTP/1.1\r\n";
+const ROUTE_GET_SLEEP: &[u8] = b"GET /sleep HTTP/1.1\r\n";
 
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
@@ -24,11 +29,11 @@ fn main() {
 
         println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
-        // byte string
-        let get = b"GET / HTTP/1.1\r\n";
-
-        let (status_line, filename) = if buffer.starts_with(get) {
+        let (status_line, filename) = if buffer.starts_with(ROUTE_GET) {
             (STATUS_LINE_200, "hello.html")
+        } else if buffer.starts_with(ROUTE_GET_SLEEP) {
+            thread::sleep(Duration::from_secs(5));
+            (STATUS_LINE_200, "sleep.html")
         } else {
             (STATUS_LINE_404, "404.html")
         };
