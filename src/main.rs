@@ -19,7 +19,9 @@ fn main() {
         
         println!("Connection established!");
 
-        handle_connection(stream);
+        thread::spawn(|| {
+            handle_connection(stream); 
+        });
     }
 
     fn handle_connection(mut stream: TcpStream) {
