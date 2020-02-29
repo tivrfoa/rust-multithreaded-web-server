@@ -3,6 +3,9 @@ use std::io::prelude::*;
 use std::net::TcpStream;
 use std::net::TcpListener;
 
+const STATUS_LINE_200: &str = "HTTP/1.1 200 OK\r\n\r\n";
+const STATUS_LINE_404: &str = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
+
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
 
@@ -24,21 +27,16 @@ fn main() {
         // byte string
         let get = b"GET / HTTP/1.1\r\n";
 
-        if buffer.starts_with(get) {
-            let contents = fs::read_to_string("hello.html").unwrap();
-
-            let response = format!("HTTP/1.1 200 OK\r\n\r\n{}", contents);
-
-            stream.write(response.as_bytes()).unwrap();
-            stream.flush().unwrap();
+        let (status_line, filename) = if buffer.starts_with(get) {
+            (STATUS_LINE_200, "hello.html")
         } else {
-            let status_line = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
-            let contents = fs::read_to_string("404.html").unwrap();
+            (STATUS_LINE_404, "404.html")
+        };
 
-            let response = format!("{}{}", status_line, contents);
+        let contents = fs::read_to_string(filename).unwrap();
+        let response = format!("{}{}", status_line, contents);
 
-            stream.write(response.as_bytes()).unwrap();
-            stream.flush().unwrap();
-        }
+        stream.write(response.as_bytes()).unwrap();
+        stream.flush().unwrap();
     }
 }
