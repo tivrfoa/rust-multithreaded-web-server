@@ -20,7 +20,7 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
         
-        println!("Connection established!");
+        // println!("Connection established!");
 
         pool.execute(|| {
             handle_connection(stream); 
@@ -32,7 +32,7 @@ fn main() {
 
         stream.read(&mut buffer).unwrap();
 
-        println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
+        // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
         let (status_line, filename) = if buffer.starts_with(ROUTE_GET) {
             (STATUS_LINE_200, "hello.html")

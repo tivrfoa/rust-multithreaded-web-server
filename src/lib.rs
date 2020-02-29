@@ -9,8 +9,13 @@ struct Worker {
 }
 
 impl Worker {
+
+    ///
+    /// The Mutex<T> ensures that only one Worker thread at a time
+    /// is trying to request a job.
+    /// 
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
-        let thread = thread::spawn(|| {
+        let thread = thread::spawn(move || {
             loop {
                 let job = receiver.lock().unwrap().recv().unwrap();
 
