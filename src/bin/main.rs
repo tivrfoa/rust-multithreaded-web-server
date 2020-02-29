@@ -5,6 +5,8 @@ use std::net::TcpListener;
 use std::thread;
 use std::time::Duration;
 
+use hello::ThreadPool;
+
 const STATUS_LINE_200: &str = "HTTP/1.1 200 OK\r\n\r\n";
 const STATUS_LINE_404: &str = "HTTP/1.1 404 NOT FOUND\r\n\r\n";
 
