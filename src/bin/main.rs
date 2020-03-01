@@ -17,7 +17,8 @@ fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     let pool = ThreadPool::new(4);
 
-    for stream in listener.incoming() {
+    for stream in listener.incoming().take(2) {
+    // for stream in listener.incoming() {
         let stream = stream.unwrap();
         
         // println!("Connection established!");
@@ -27,26 +28,28 @@ fn main() {
         });
     }
 
-    fn handle_connection(mut stream: TcpStream) {
-        let mut buffer = [0; 512];
+    println!("Shutting down.");
+}
 
-        stream.read(&mut buffer).unwrap();
+fn handle_connection(mut stream: TcpStream) {
+    let mut buffer = [0; 512];
 
-        // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
+    stream.read(&mut buffer).unwrap();
 
-        let (status_line, filename) = if buffer.starts_with(ROUTE_GET) {
-            (STATUS_LINE_200, "hello.html")
-        } else if buffer.starts_with(ROUTE_GET_SLEEP) {
-            thread::sleep(Duration::from_secs(5));
-            (STATUS_LINE_200, "sleep.html")
-        } else {
-            (STATUS_LINE_404, "404.html")
-        };
+    // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
 
-        let contents = fs::read_to_string(filename).unwrap();
-        let response = format!("{}{}", status_line, contents);
+    let (status_line, filename) = if buffer.starts_with(ROUTE_GET) {
+        (STATUS_LINE_200, "hello.html")
+    } else if buffer.starts_with(ROUTE_GET_SLEEP) {
+        thread::sleep(Duration::from_secs(5));
+        (STATUS_LINE_200, "sleep.html")
+    } else {
+        (STATUS_LINE_404, "404.html")
+    };
 
-        stream.write(response.as_bytes()).unwrap();
-        stream.flush().unwrap();
-    }
+    let contents = fs::read_to_string(filename).unwrap();
+    let response = format!("{}{}", status_line, contents);
+
+    stream.write(response.as_bytes()).unwrap();
+    stream.flush().unwrap();
 }
