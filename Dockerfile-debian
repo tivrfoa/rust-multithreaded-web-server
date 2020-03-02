@@ -1,0 +1,9 @@
+# docker build -t rust-debian:onestep -f Dockerfile-debian .
+
+FROM debian:buster-slim
+WORKDIR /usr/src/myapp
+COPY . .
+COPY target/release/main /usr/local/bin/main
+CMD ["main"]
+
+# docker run -it --rm --name rust-debian-onestep -p 8081:5000 rust-debian:onestep

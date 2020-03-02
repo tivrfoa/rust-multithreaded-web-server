@@ -1,0 +1,14 @@
+# docker build -t rust-debian:multistage -f Dockerfile-rust-debian .
+
+FROM rust:1.41.1-slim as builder
+WORKDIR /usr/src/myapp
+COPY . .
+RUN cargo install --path .
+
+FROM debian:buster-slim
+WORKDIR /usr/src/myapp
+COPY --from=builder /usr/src/myapp/ . 
+COPY --from=builder /usr/local/cargo/bin/main /usr/local/bin/main
+CMD ["main"]
+
+# docker run -it --rm --name rust-debian-multistage -p 8082:5000 rust-debian:multistage

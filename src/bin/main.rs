@@ -14,7 +14,9 @@ const ROUTE_GET: &[u8] = b"GET / HTTP/1.1\r\n";
 const ROUTE_GET_SLEEP: &[u8] = b"GET /sleep HTTP/1.1\r\n";
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    println!("Starting app");
+
+    let listener = TcpListener::bind("0.0.0.0:5000").unwrap();
     let pool = ThreadPool::new(4);
 
     for stream in listener.incoming().take(2) {
